@@ -1,6 +1,6 @@
 # Product API
 
-Add a short description here. You can also add a screenshot if needed.
+An API to get product from thelia based website with only the product's reference. 
 
 ## Installation
 
@@ -19,37 +19,13 @@ composer require your-vendor/product-api-module:~1.0
 
 ## Usage
 
-Explain here how to use your module, how to configure it, etc.
-
-## Hook
-
-If your module use one or more hook, fill this part. Explain which hooks are used.
-
-
-## Loop
-
-If your module declare one or more loop, describe them here like this :
-
-[loop name]
+To get product information in JSON, call this URL : http://[YOUR-WEBSITE]/admin/module/productapi/search?q=[REFERENCE]
+Call the API URL from anywhere to get product's information.
+The API return a JSON format of the product.
+If no product is found with the reference, the API return null.
 
 ### Input arguments
 
 |Argument |Description |
 |---      |--- |
-|**arg1** | describe arg1 with an exemple. |
-|**arg2** | describe arg2 with an exemple. |
-
-### Output arguments
-
-|Variable   |Description |
-|---        |--- |
-|$VAR1    | describe $VAR1 variable |
-|$VAR2    | describe $VAR2 variable |
-
-### Exemple
-
-Add a complete exemple of your loop
-
-## Other ?
-
-If you have other think to put, feel free to complete your readme as you want.
+|**q** | The reference searched |
