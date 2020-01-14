@@ -7,5 +7,4 @@
     <route id="product.api.search" path="/admin/module/productapi/search">
         <default key="_controller">ProductAPI\Controller\Admin\ProductAPIAdminController::searchAction</default>
     </route>
-
 </routes>

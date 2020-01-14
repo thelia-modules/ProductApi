@@ -19,10 +19,17 @@ class ProductAPI extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'productapi';
 
+    const CONFIG_NAME_SERVER_HOST = 'server_host';
+
     /*
      * You may now override BaseModuleInterface methods, such as:
      * install, destroy, preActivation, postActivation, preDeactivation, postDeactivation
      *
      * Have fun !
      */
+
+    public static function getServerHost()
+    {
+        return rtrim(self::getConfigValue(self::CONFIG_NAME_SERVER_HOST, null), '/');
+    }
 }
