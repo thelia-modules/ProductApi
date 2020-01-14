@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ProductAPI\Controller;
+namespace ProductAPI\Controller\Api;
 
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Exception\PropelException;

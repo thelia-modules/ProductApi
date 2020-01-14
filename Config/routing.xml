@@ -13,6 +13,6 @@
     </route>
 
     <route id="product.api.get" path="/api/product/ref/{ref}" methods="GET">
-        <default key="_controller">ProductAPI\Controller\ProductController::getByRefAction</default>
+        <default key="_controller">ProductAPI\Controller\Api\ProductController::getByRefAction</default>
     </route>
 </routes>
