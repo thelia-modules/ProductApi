@@ -19,7 +19,7 @@ composer require your-vendor/product-api-module:~1.0
 
 ## Usage
 
-To get product information in JSON, call this URL : http://[YOUR-WEBSITE]/api/product/ref/{ref},
+To get product information in JSON, call this URL : **http://[YOUR-WEBSITE]/api/product/ref/{ref}**,
 where {ref} is the reference of the product.
 
 Call the API URL from anywhere to get product's information.
