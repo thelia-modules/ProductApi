@@ -13,6 +13,6 @@
         <email>fbernard@openstudio.fr</email>
     </author>
     <type>classic</type>
-    <thelia>2.4.0</thelia>
+    <thelia>2.3.4</thelia>
     <stability>other</stability>
 </module>
