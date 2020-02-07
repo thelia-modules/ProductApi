@@ -24,7 +24,7 @@ you have to generate your hash like this :
 - *130010***ExRtVQjUCCBApuN4s4fPEQ6i5yggYvm2** => 11dff8469f6f751b03c0e20c0c132c20fd3141f3
 
 Then you call the API like this : 
-- /api/product?ref=130010&hash=ExRtVQjUCCBApuN4s4fPEQ6i5yggYvm2
+- /api/product?ref=130010&hash=11dff8469f6f751b03c0e20c0c132c20fd3141f3
 
 If a product with this ref exists and your hash is correct, the API should give you all product's informations
 in JSON
