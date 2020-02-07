@@ -19,6 +19,8 @@ class ProductAPI extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'productapi';
 
+    const API_KEY = 'ExRtVQjUCCBApuN4s4fPEQ6i5yggYvm2';
+
     const CONFIG_NAME_SERVER_HOST = 'server_host';
 
     /*
