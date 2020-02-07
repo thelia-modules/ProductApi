@@ -12,7 +12,7 @@
         <default key="_controller">ProductAPI\Controller\Admin\ProductAPIAdminController::searchAction</default>
     </route>
 
-    <route id="product.api.get" path="/api/product/ref/{ref}/{countryIso3}" methods="GET">
-        <default key="_controller">ProductAPI\Controller\Api\ProductController::getByRefAction</default>
+    <route id="product.api.get" path="/api/product" methods="GET">
+        <default key="_controller">ProductAPI\Controller\Api\ProductController::getMethodAction</default>
     </route>
 </routes>

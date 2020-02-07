@@ -26,6 +26,7 @@ use Thelia\Model\ConfigQuery;
 use Thelia\Model\ProductI18n;
 use Thelia\Model\ProductQuery;
 use Thelia\Model\TaxRule;
+use Thelia\Model\TaxRule as ChildTaxRule;
 use Thelia\TaxEngine\Calculator;
 
 class ProductService
@@ -37,30 +38,40 @@ class ProductService
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function getByRef($ref, $countryIso3)
+    /**
+     * @param array $parameters
+     * @param string $lang
+     * @return mixed
+     */
+    public function get(array $parameters, $lang = "FRA")
     {
-        try {
-            $product = ProductQuery::create()->filterByRef($ref, Criteria::LIKE)->findOne(); // Get the product with the ref
+        $data = [];
+
+        try{
+            foreach ($parameters as $parameter => $value){
+                $function = "filterBy".$parameter;
+                $productQuery = ProductQuery::create()->$function($value);
+            }
+
+            $product = $productQuery->findOne();
+
+            if(null === $product){
+                return $data['message'] = "Aucun produit trouvé avec les informations donnnées.";
+            }
+            
             $productI18ns = $product->getProductI18ns(); // Get product's translations
             $productSaleElements = $product->getProductSaleElementss(); // Get product's pses
             $productTaxRule = $product->getTaxRule(); // Get product's tax rule
-            $productTaxeRuleCountries = $productTaxRule->getTaxRuleCountries(); // Get product taxed countries to check if product is taxed
 
-            $country = CountryQuery::create()->filterByIsoalpha3($countryIso3)->findOne(); // Get country from 3 alpha iso code
+            $country = CountryQuery::create()->filterByIsoalpha3($lang)->findOne(); // Get country from 3 alpha iso code
 
-            $taxedCountriesID = [];
-
-            foreach ($productTaxeRuleCountries as $taxedCountry){
-                $taxedCountriesID[] = $taxedCountry->getCountry()->getId(); // Creating taxed countries id array to check if country wanted has taxes
+            if(null === $country){
+                return $data['message'] = "La pays recherché ($lang), n'existe pas.";
             }
 
-            // Check if country wanted is in taxed countries list
-            if(in_array($country->getId(), $taxedCountriesID)){
-                $taxed = true;
-            } else $taxed = false;
+            $taxed = $this->checkIfCountryIsTaxed($productTaxRule, $country);
 
             $data['Product'] = $product->toArray(); // Jsonify the product
-
             $data['Product']['Images'] = $this->getImageData($product->getProductImages(), 'product');
             $data['Product']['URL'] = $product->getUrl('fr_FR');
 
@@ -98,10 +109,29 @@ class ProductService
             }
 
         } catch(PropelException $e){
-            return new JsonResponse(['error' => "PROPEL ERROR, PLEASE VERIFY METHOD 'getByRefAction' in ProductController !"]);
+
         }
 
         return $data;
+    }
+
+    public function checkIfCountryIsTaxed($productTaxRule, $country)
+    {
+        /** @var ChildTaxRule $productTaxRule */
+        $productTaxeRuleCountries = $productTaxRule->getTaxRuleCountries(); // Get product taxed countries to check if product is taxed
+
+        $taxedCountriesID = [];
+
+        foreach ($productTaxeRuleCountries as $taxedCountry){
+            $taxedCountriesID[] = $taxedCountry->getCountry()->getId(); // Creating taxed countries id array to check if country wanted has taxes
+        }
+
+        // Check if country wanted is in taxed countries list
+        if(in_array($country->getId(), $taxedCountriesID)){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     protected function getPricesData(ProductSaleElements $productSaleElement, Product $product, TaxRule $taxRule, $taxed, Country $country)
