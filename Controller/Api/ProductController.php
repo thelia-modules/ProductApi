@@ -24,6 +24,7 @@ class ProductController extends BaseFrontController
         // TODO: locale | lang
         $hash = $request->get('hash');
         $country = $request->get('country', 'FRA');
+        $lang = $request->get('lang', 'fr_FR');
 
         /** @var ApiService $apiService */
         $apiService = $this->getContainer()->get('product_api.api.service');
@@ -36,7 +37,7 @@ class ProductController extends BaseFrontController
                 return new JsonResponse(Translator::getInstance()->trans('You are not authorized to see this.', [], ProductAPI::DOMAIN_NAME), 403);
             }
 
-            $jsonResponse = $productService->getProduct($request->query->all(), $country);
+            $jsonResponse = $productService->getProduct($request->query->all(), $country, $lang);
 
             return new JsonResponse($jsonResponse, 200);
 

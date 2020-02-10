@@ -51,7 +51,7 @@ class ProductService
      * @throws PropelException
      * @throws Exception
      */
-    public function getProduct(array $filters, $countryCode = "FRA")
+    public function getProduct(array $filters, $countryCode = "FRA", $lang = "fr_FR")
     {
         $productQuery = ProductQuery::create();
         foreach ($filters as $parameter => $value){
@@ -83,7 +83,7 @@ class ProductService
 
         $data['Product'] = $product->toArray(); // Jsonify the product - 'Product' key is used to deserialize in the WordPress plugin
         $data['Product']['Images'] = $this->getImageData($product->getProductImages(), 'product');
-        $data['Product']['URL'] = $product->getUrl('fr_FR');
+        $data['Product']['URL'] = $product->getUrl($lang);
 
         foreach ($productSaleElements as $productSaleElement){
             $priceData =  $this->getPricesData($productSaleElement, $product, $productTaxRule, $taxed, $country); // Get Prices for each currency
