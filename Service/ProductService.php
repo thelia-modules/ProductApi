@@ -5,6 +5,8 @@ namespace ProductAPI\Service;
 
 
 use Comment\Model\CommentQuery;
+use Exception;
+use ProductAPI\ProductAPI;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -12,6 +14,7 @@ use Thelia\Action\Image;
 use Thelia\Core\Event\Image\ImageEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\JsonResponse;
+use Thelia\Core\Translation\Translator;
 use Thelia\Model\Base\AttributeAvI18nQuery;
 use Thelia\Model\Base\AttributeCombinationQuery;
 use Thelia\Model\Base\AttributeI18nQuery;
@@ -19,6 +22,7 @@ use Thelia\Model\Base\CountryQuery;
 use Thelia\Model\Base\ProductI18nQuery;
 use Thelia\Model\Base\ProductPriceQuery;
 use Thelia\Model\Country;
+use Thelia\Model\Map\ProductTableMap;
 use Thelia\Model\Product;
 use Thelia\Model\ProductSaleElements;
 use Thelia\Model\Base\ProductSaleElementsQuery;
@@ -39,99 +43,95 @@ class ProductService
     }
 
     /**
-     * @param array $parameters
+     * @param array $filters
      * @param string $lang
+     *
      * @return mixed
+     *
+     * @throws PropelException
+     * @throws Exception
      */
-    public function get(array $parameters, $lang = "FRA")
+    public function getProduct(array $filters, $countryCode = "FRA")
     {
-        $data = [];
-
-        try{
-            foreach ($parameters as $parameter => $value){
-                $function = "filterBy".$parameter;
-                $productQuery = ProductQuery::create()->$function($value);
+        $productQuery = ProductQuery::create();
+        foreach ($filters as $parameter => $value){
+            $filterFunction = "filterBy".ucfirst($parameter);
+            if(!method_exists($productQuery, $filterFunction)){
+                continue;
             }
 
-            $product = $productQuery->findOne();
+            $productQuery->$filterFunction($value);
+        }
 
-            if(null === $product){
-                return $data['message'] = "Aucun produit trouvé avec les informations donnnées.";
-            }
-            
-            $productI18ns = $product->getProductI18ns(); // Get product's translations
-            $productSaleElements = $product->getProductSaleElementss(); // Get product's pses
-            $productTaxRule = $product->getTaxRule(); // Get product's tax rule
+        $product = $productQuery->findOne();
 
-            $country = CountryQuery::create()->filterByIsoalpha3($lang)->findOne(); // Get country from 3 alpha iso code
+        if(null === $product){
+            throw new Exception(Translator::getInstance()->trans('No product with this parameters.', [], ProductAPI::DOMAIN_NAME));
+        }
 
-            if(null === $country){
-                return $data['message'] = "La pays recherché ($lang), n'existe pas.";
-            }
+        $productI18ns = $product->getProductI18ns(); // Get product's translations
+        $productSaleElements = $product->getProductSaleElementss(); // Get product's pses
+        $productTaxRule = $product->getTaxRule(); // Get product's tax rule
 
-            $taxed = $this->checkIfCountryIsTaxed($productTaxRule, $country);
+        $country = CountryQuery::create()->filterByIsoalpha3($countryCode)->findOne(); // Get country from 3 alpha iso code
 
-            $data['Product'] = $product->toArray(); // Jsonify the product
-            $data['Product']['Images'] = $this->getImageData($product->getProductImages(), 'product');
-            $data['Product']['URL'] = $product->getUrl('fr_FR');
+        if(null === $country){
+            throw new Exception(Translator::getInstance()->trans('Country code %countryCode not found.', ['%countryCode' => $countryCode], ProductAPI::DOMAIN_NAME));
+        }
 
-            $indexPSE = 0;
-            foreach ($productSaleElements as $productSaleElement){
-                $priceData =  $this->getPricesData($productSaleElement, $product, $productTaxRule, $taxed, $country); // Get Prices for each currency
+        $taxed = $this->checkCountryIsTaxed($productTaxRule, $country);
 
-                $data['Product']['ProductSaleElements'][$indexPSE] = $productSaleElement->toArray(); // Jsonify the product sale element
-                $data['Product']['ProductSaleElements'][$indexPSE]['Prices'] = $priceData; // Add prices to pse
+        $data = $product->toArray(); // Jsonify the product
+        $data['Images'] = $this->getImageData($product->getProductImages(), 'product');
+        $data['URL'] = $product->getUrl('fr_FR');
 
-                $attributeCombinations = $productSaleElement->getAttributeCombinations();
+        foreach ($productSaleElements as $productSaleElement){
+            $priceData =  $this->getPricesData($productSaleElement, $product, $productTaxRule, $taxed, $country); // Get Prices for each currency
 
-                foreach($attributeCombinations as $attributeCombination){
+            $data['ProductSaleElements'][$productSaleElement->getId()] = $productSaleElement->toArray(); // Jsonify the product sale element
+            $data['ProductSaleElements'][$productSaleElement->getId()]['Prices'] = $priceData; // Add prices to pse
 
-                    $attributeTitleI18ns = $attributeCombination->getAttribute()->getAttributeI18ns();
-                    $attributeValueI18ns = $attributeCombination->getAttributeAv()->getAttributeAvI18ns();
+            $attributeCombinations = $productSaleElement->getAttributeCombinations();
 
-                    $index = 0;
-                    foreach ($attributeTitleI18ns as $attributeI18n){
-                        $data['Product']['ProductSaleElements'][$indexPSE]['i18ns'][$attributeI18n->getLocale()]['Attributes'][$index]['Title'] = $attributeI18n->getTitle();
-                        $index++;
-                    }
+            foreach($attributeCombinations as $attributeCombination){
 
-                    $index = 0;
-                    foreach ($attributeValueI18ns as $attributeValueI18n){
-                        $data['Product']['ProductSaleElements'][$indexPSE]['i18ns'][$attributeValueI18n->getLocale()]['Attributes'][$index]['Value'] = $attributeValueI18n->getTitle();
-                        $index++;
-                    }
+                $attributeTitleI18ns = $attributeCombination->getAttribute()->getAttributeI18ns();
+                $attributeValueI18ns = $attributeCombination->getAttributeAv()->getAttributeAvI18ns();
+
+                $index = 0;
+                foreach ($attributeTitleI18ns as $attributeI18n){
+                    $data['ProductSaleElements'][$productSaleElement->getId()]['i18ns'][$attributeI18n->getLocale()]['Attributes'][$index]['Title'] = $attributeI18n->getTitle();
+                    $index++;
                 }
-                $indexPSE++;
+
+                $index = 0;
+                foreach ($attributeValueI18ns as $attributeValueI18n){
+                    $data['ProductSaleElements'][$productSaleElement->getId()]['i18ns'][$attributeValueI18n->getLocale()]['Attributes'][$index]['Value'] = $attributeValueI18n->getTitle();
+                    $index++;
+                }
             }
+        }
 
-            foreach ($productI18ns as $productI18n){
-                $data['Product']['ProductI18ns'][$productI18n->getLocale()] = $productI18n->toArray(); // Jsonify the product translation
-            }
-
-        } catch(PropelException $e){
-
+        foreach ($productI18ns as $productI18n){
+            $data['ProductI18ns'][$productI18n->getLocale()] = $productI18n->toArray(); // Jsonify the product translation
         }
 
         return $data;
     }
 
-    public function checkIfCountryIsTaxed($productTaxRule, $country)
+    public function checkCountryIsTaxed($productTaxRule, $country)
     {
         /** @var ChildTaxRule $productTaxRule */
         $productTaxeRuleCountries = $productTaxRule->getTaxRuleCountries(); // Get product taxed countries to check if product is taxed
 
-        $taxedCountriesID = [];
+        $taxedCountryIds = [];
 
         foreach ($productTaxeRuleCountries as $taxedCountry){
-            $taxedCountriesID[] = $taxedCountry->getCountry()->getId(); // Creating taxed countries id array to check if country wanted has taxes
+            $taxedCountryIds[] = $taxedCountry->getCountry()->getId(); // Creating taxed countries id array to check if country wanted has taxes
         }
 
         // Check if country wanted is in taxed countries list
-        if(in_array($country->getId(), $taxedCountriesID)){
-            return true;
-        } else {
-            return false;
-        }
+        return in_array($country->getId(), $taxedCountryIds);
     }
 
     protected function getPricesData(ProductSaleElements $productSaleElement, Product $product, TaxRule $taxRule, $taxed, Country $country)

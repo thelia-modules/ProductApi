@@ -3,24 +3,13 @@
 
 namespace ProductAPI\Controller\Api;
 
+use ColissimoLabel\Exception\Exception;
 use ProductAPI\ProductAPI;
-use Propel\Runtime\ActiveQuery\Criteria;
-use Propel\Runtime\Exception\PropelException;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use ProductAPI\Service\ProductService;
 use Symfony\Component\HttpFoundation\Request;
-use Thelia\Action\Image;
 use Thelia\Controller\Front\BaseFrontController;
-use Thelia\Core\Event\Image\ImageEvent;
 use Thelia\Core\HttpFoundation\JsonResponse;
-use Thelia\Model\Base\AttributeAvI18nQuery;
-use Thelia\Model\Base\AttributeCombinationQuery;
-use Thelia\Model\Base\AttributeI18nQuery;
-use Thelia\Model\Base\ConfigQuery;
-use Thelia\Model\Base\ProductI18nQuery;
-use Thelia\Model\Base\ProductPriceQuery;
-use Thelia\Model\Base\ProductSaleElementsQuery;
-use Thelia\Model\ProductI18n;
-use Thelia\Model\ProductQuery;
+use Thelia\Core\Translation\Translator;
 
 /**
  * Class ProductController
@@ -31,51 +20,34 @@ class ProductController extends BaseFrontController
 {
     public function getMethodAction(Request $request)
     {
-        $parameters = $request->query->all();
-        $jsonResponse = [];
-        $code = 404;
+        // TODO: locale | lang
+        $hash = $request->get('hash');
+        $country = $request->get('country', 'FRA');
 
-        if(!empty($parameters['hash'])){
-
-            $hash = $parameters['hash'];
-            unset($parameters['hash']);
-
-            if(self::verifyHash($parameters, $hash)){
-
-                if(!empty($parameters['lang'])){
-                    $lang = $parameters['lang'];
-                    unset($parameters['lang']);
-                } else $lang = "FRA";
-
-                $code = 200;
-                $productService = $this->getContainer()->get('product_api.product.service');
-                $jsonResponse = $productService->get($parameters, $lang);
-
-            } else {
-                $jsonResponse['message'] = "Hash incorrect";
-                $code = 401;
+        try{
+            if($hash && !$this->verifyHash($request)) {
+                return new JsonResponse(Translator::getInstance()->trans('You are not authorized to see this.', [], ProductAPI::DOMAIN_NAME), 403);
             }
 
-        } else {
-            $jsonResponse['message'] = "Vous devez vous ajouter le hash de votre requête et de la clé d'API.";
-            $code = 403;
+            /** @var ProductService $productService */
+            $productService = $this->getContainer()->get('product_api.product.service');
+
+            $jsonResponse = $productService->getProduct($request->query->all(), $country);
+
+            return new JsonResponse($jsonResponse, 200);
+
+        } catch (Exception $e){
+            return new JsonResponse($e->getMessage(), 400);
         }
-
-        return new JsonResponse($jsonResponse, $code);
-        /*$productService = $this->getContainer()->get('product_api.product.service');
-        $data = $productService->getByRef($ref, $countryIso3);
-
-        return new JsonResponse($data);*/
     }
 
-    private static function verifyHash($parameters, $hash)
+    private function verifyHash(Request $request)
     {
+        $parameters = $request->query->all();
+        unset($parameters['hash']);
+
         $values = implode($parameters);
 
-        if($hash === sha1($values . ProductAPI::API_KEY)){
-            return true;
-        } else {
-            return false;
-        }
+        return $request->query->get('hash') === sha1($values . ProductAPI::API_KEY);
     }
 }
