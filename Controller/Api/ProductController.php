@@ -3,9 +3,10 @@
 
 namespace ProductAPI\Controller\Api;
 
-use ColissimoLabel\Exception\Exception;
 use ProductAPI\ProductAPI;
+use ProductAPI\Service\ApiService;
 use ProductAPI\Service\ProductService;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\HttpFoundation\Request;
 use Thelia\Controller\Front\BaseFrontController;
 use Thelia\Core\HttpFoundation\JsonResponse;
@@ -24,30 +25,25 @@ class ProductController extends BaseFrontController
         $hash = $request->get('hash');
         $country = $request->get('country', 'FRA');
 
+        /** @var ApiService $apiService */
+        $apiService = $this->getContainer()->get('product_api.api.service');
+
+        /** @var ProductService $productService */
+        $productService = $this->getContainer()->get('product_api.product.service');
+
         try{
-            if($hash && !$this->verifyHash($request)) {
+            if($hash && !$apiService->verifyHash($request)) {
                 return new JsonResponse(Translator::getInstance()->trans('You are not authorized to see this.', [], ProductAPI::DOMAIN_NAME), 403);
             }
-
-            /** @var ProductService $productService */
-            $productService = $this->getContainer()->get('product_api.product.service');
 
             $jsonResponse = $productService->getProduct($request->query->all(), $country);
 
             return new JsonResponse($jsonResponse, 200);
 
-        } catch (Exception $e){
-            return new JsonResponse($e->getMessage(), 400);
+        } catch (PropelException $e){
+            return new JsonResponse("PROPEL ERROR : " . $e->getMessage(), 400);
+        } catch (\Exception $e){
+            return new JsonResponse("UNKNOW ERROR : " . $e->getMessage(), 400);
         }
-    }
-
-    private function verifyHash(Request $request)
-    {
-        $parameters = $request->query->all();
-        unset($parameters['hash']);
-
-        $values = implode($parameters);
-
-        return $request->query->get('hash') === sha1($values . ProductAPI::API_KEY);
     }
 }
