@@ -81,15 +81,15 @@ class ProductService
 
         $taxed = $this->checkCountryIsTaxed($productTaxRule, $country);
 
-        $data = $product->toArray(); // Jsonify the product
-        $data['Images'] = $this->getImageData($product->getProductImages(), 'product');
-        $data['URL'] = $product->getUrl('fr_FR');
+        $data['Product'] = $product->toArray(); // Jsonify the product - 'Product' key is used to deserialize in the WordPress plugin
+        $data['Product']['Images'] = $this->getImageData($product->getProductImages(), 'product');
+        $data['Product']['URL'] = $product->getUrl('fr_FR');
 
         foreach ($productSaleElements as $productSaleElement){
             $priceData =  $this->getPricesData($productSaleElement, $product, $productTaxRule, $taxed, $country); // Get Prices for each currency
 
-            $data['ProductSaleElements'][$productSaleElement->getId()] = $productSaleElement->toArray(); // Jsonify the product sale element
-            $data['ProductSaleElements'][$productSaleElement->getId()]['Prices'] = $priceData; // Add prices to pse
+            $data['Product']['ProductSaleElements'][$productSaleElement->getId()] = $productSaleElement->toArray(); // Jsonify the product sale element
+            $data['Product']['ProductSaleElements'][$productSaleElement->getId()]['Prices'] = $priceData; // Add prices to pse
 
             $attributeCombinations = $productSaleElement->getAttributeCombinations();
 
@@ -100,20 +100,20 @@ class ProductService
 
                 $index = 0;
                 foreach ($attributeTitleI18ns as $attributeI18n){
-                    $data['ProductSaleElements'][$productSaleElement->getId()]['i18ns'][$attributeI18n->getLocale()]['Attributes'][$index]['Title'] = $attributeI18n->getTitle();
+                    $data['Product']['ProductSaleElements'][$productSaleElement->getId()]['i18ns'][$attributeI18n->getLocale()]['Attributes'][$index]['Title'] = $attributeI18n->getTitle();
                     $index++;
                 }
 
                 $index = 0;
                 foreach ($attributeValueI18ns as $attributeValueI18n){
-                    $data['ProductSaleElements'][$productSaleElement->getId()]['i18ns'][$attributeValueI18n->getLocale()]['Attributes'][$index]['Value'] = $attributeValueI18n->getTitle();
+                    $data['Product']['ProductSaleElements'][$productSaleElement->getId()]['i18ns'][$attributeValueI18n->getLocale()]['Attributes'][$index]['Value'] = $attributeValueI18n->getTitle();
                     $index++;
                 }
             }
         }
 
         foreach ($productI18ns as $productI18n){
-            $data['ProductI18ns'][$productI18n->getLocale()] = $productI18n->toArray(); // Jsonify the product translation
+            $data['Product']['ProductI18ns'][$productI18n->getLocale()] = $productI18n->toArray(); // Jsonify the product translation
         }
 
         return $data;
