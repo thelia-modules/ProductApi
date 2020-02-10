@@ -1,10 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{extends file="admin-layout.tpl"}
+
+{block name="after-bootstrap-css"}
+{/block}
+
+{block name="no-return-functions"}
+{$admin_current_location = 'modules'}
+{/block}
+
+{block name="page-title"}{intl l='Modules'}{/block}
+
+{block name="check-resource"}admin.module{/block}
+{block name="check-access"}view{/block}
+
+{block name="main-content"}
+{default_translation_domain domain='productapi.bo.default'}
+
+{if $form_error_message}
+<div class="alert alert-danger">{$form_error_message}</div>
+{/if}
+<div class="edit-module">
+    <div id="wrapper" class="container">
+
+        <ul class="breadcrumb">
+            <li><a href="{url path='/admin/home'}">{intl l="Home"}</a></li>
+            <li><a href="{url path='/admin/modules'}">{intl l="Modules"}</a></li>
+            <li>{intl l="Product API"}</li>
+        </ul>
+
+        <div class="row">
+            <div class="col-md-12 general-block-decorator">
+                <div class="col-md-12 title title-without-tabs">
+                    {intl l='Product API base configuration'}
+                </div>
+
+                <div class="col-md-6">
+                    <p id="api-key">Clé d'API : </p>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="api-key-length">Longueur de la clé</label>
+                        <input type="number" class="form-control" id="api-key-length" aria-describedby="api-key-length-help" value="15">
+                        <small id="api-key-length-help" class="form-text text-muted">La taille de la clé d'API en nombre de caractères</small>
+                    </div>
+                    <button id="generate-api-key-btn" class="btn btn-primary" type="button">Générer la clé d'API</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+
+{block name="javascript-initialization"}
+<script>
+
+    $('#generate-api-key-btn').on('click', function () {
+        let key = makeKey($('#api-key-length').val());
+
+        $('#api-key').text('Clé d\'API : ' + key);
+
+    });
+
+    function makeKey(length){
+        var result           = '';
+        var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        for ( var i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+</script>
+{/block}
+
+{block name="javascript-last-call"}
+{/block}
