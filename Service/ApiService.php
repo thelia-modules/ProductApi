@@ -11,11 +11,12 @@ class ApiService
 {
     public function verifyHash(Request $request)
     {
+        $apiKey = ProductAPI::getConfigValue('productapi_key', ProductAPI::API_KEY);
+
         $parameters = $request->query->all();
         unset($parameters['hash']);
-
         $values = implode($parameters);
 
-        return $request->query->get('hash') === sha1($values . ProductAPI::API_KEY);
+        return $request->query->get('hash') === sha1($values . $apiKey);
     }
 }

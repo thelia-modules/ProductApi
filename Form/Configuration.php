@@ -28,7 +28,8 @@ class Configuration extends BaseForm
     {
         $form = $this->formBuilder;
 
-        $apiKey = ProductAPI::API_KEY;
+        $apiKey = ProductAPI::getConfigValue('productapi_key', ProductAPI::API_KEY);
+        $apiUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/api/product';
 
         $form->add(
             "api_key",
@@ -38,6 +39,18 @@ class Configuration extends BaseForm
                 'label' => Translator::getInstance()->trans("API Key",[] ,ProductAPI::DOMAIN_NAME),
                 'label_attr' => array(
                     'for' => "api_key"
+                ),
+            )
+        );
+
+        $form->add(
+            "api_url",
+            "text",
+            array(
+                'data'  => $apiUrl,
+                'label' => Translator::getInstance()->trans("API URL",[] ,ProductAPI::DOMAIN_NAME),
+                'label_attr' => array(
+                    'for' => "api_url"
                 ),
             )
         );

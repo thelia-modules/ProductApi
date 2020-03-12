@@ -1,5 +1,5 @@
 <?php
 return array(
     'API Key' => 'Clé d\'API',
-    'Product API base configuration' => 'Configuration du module Product API'
+    'API Key / URL' => 'Clé d\'API / URL'
 );

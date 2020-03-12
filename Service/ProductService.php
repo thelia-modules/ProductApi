@@ -4,28 +4,18 @@
 namespace ProductAPI\Service;
 
 
-use Comment\Model\CommentQuery;
 use Exception;
 use ProductAPI\ProductAPI;
-use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Thelia\Action\Image;
 use Thelia\Core\Event\Image\ImageEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Translation\Translator;
-use Thelia\Model\Base\AttributeAvI18nQuery;
-use Thelia\Model\Base\AttributeCombinationQuery;
-use Thelia\Model\Base\AttributeI18nQuery;
 use Thelia\Model\Base\CountryQuery;
-use Thelia\Model\Base\ProductI18nQuery;
-use Thelia\Model\Base\ProductPriceQuery;
 use Thelia\Model\Country;
-use Thelia\Model\Map\ProductTableMap;
 use Thelia\Model\Product;
 use Thelia\Model\ProductSaleElements;
-use Thelia\Model\Base\ProductSaleElementsQuery;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\ProductI18n;
 use Thelia\Model\ProductQuery;

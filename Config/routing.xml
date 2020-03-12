@@ -4,12 +4,16 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="productapi.configure.view" path="/admin/module/ProductAPI" methods="GET">
+    <route id="product_api.configure.view" path="/admin/module/ProductAPI" methods="GET">
         <default key="_controller">ProductAPI\Controller\Admin\ConfigurationController::viewAction</default>
     </route>
 
 
-    <route id="product.api.get" path="/api/product" methods="GET">
+    <route id="product_api.get" path="/api/product" methods="GET">
         <default key="_controller">ProductAPI\Controller\Api\ProductController::getMethodAction</default>
+    </route>
+
+    <route id="product_api_configure.update_api_key" path="/admin/module/ProductAPI/update-api-key" methods="POST">
+        <default key="_controller">ProductAPI\Controller\Admin\ConfigurationController::updateApiKey</default>
     </route>
 </routes>

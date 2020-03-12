@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-md-12 general-block-decorator">
                 <div class="col-md-12 title title-without-tabs">
-                    {intl l='Product API base configuration'}
+                    {intl l='API Key / URL'}
                 </div>
 
                 <div class="col-md-6">
@@ -44,6 +44,13 @@
                     {/if}
 
                     {form_field field='api_key'}
+                    <div class="form-group {if $error}has-error{/if}">
+                        <label for="{$label_attr.for}" class="control-label">{$label} : </label>
+                        <input type="text" id="{$label_attr.for}" name="{$name}" class="form-control" title="{$label}" value="{$value}" disabled="disabled">
+                    </div>
+                    {/form_field}
+
+                    {form_field field='api_url'}
                     <div class="form-group {if $error}has-error{/if}">
                         <label for="{$label_attr.for}" class="control-label">{$label} : </label>
                         <input type="text" id="{$label_attr.for}" name="{$name}" class="form-control" title="{$label}" value="{$value}" disabled="disabled">
@@ -75,7 +82,14 @@
     $('#generate-api-key-btn').on('click', function () {
         let key = makeKey($('#api-key-length').val());
 
-        $('#api_key').val(key);
+        $.ajax({
+            url: "/admin/module/ProductAPI/update-api-key",
+            type: 'POST',
+            data: { newKey: key },
+        }).done(function() {
+            console.log('ok');
+            $('#api_key').val(key);
+        });
 
     });
 
