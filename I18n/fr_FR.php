@@ -1,4 +1,5 @@
 <?php
 return array(
-    // 'an english string' => 'La traduction française de la chaine',
+    'API Key' => 'Clé d\'API',
+    'Product API base configuration' => 'Configuration du module Product API'
 );
