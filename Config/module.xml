@@ -7,7 +7,7 @@
     <descriptive locale="fr_FR">
         <title>Obtenir les informations d'un produit avec sa référence</title>
     </descriptive>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <author>
         <name>Florian Bernard</name>
         <email>fbernard@openstudio.fr</email>

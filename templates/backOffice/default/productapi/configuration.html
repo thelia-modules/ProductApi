@@ -79,6 +79,8 @@
 {block name="javascript-initialization"}
 <script>
 
+    $('#api-key-length').val($('#api_key').val().length);
+
     $('#generate-api-key-btn').on('click', function () {
         let key = makeKey($('#api-key-length').val());
 
@@ -87,7 +89,6 @@
             type: 'POST',
             data: { newKey: key },
         }).done(function() {
-            console.log('ok');
             $('#api_key').val(key);
         });
 
