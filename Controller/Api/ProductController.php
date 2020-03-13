@@ -21,6 +21,10 @@ class ProductController extends BaseFrontController
 {
     public function getMethodAction(Request $request)
     {
+        if(empty($request->query->all())) {
+            return new JsonResponse(['message' => 'Thelia Product API is working !']);
+        }
+
         // TODO: locale | lang
         $hash = $request->get('hash');
         $country = $request->get('country', 'FRA');
