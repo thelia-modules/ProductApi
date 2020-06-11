@@ -30,6 +30,9 @@ class ProductService
     public function __construct(EventDispatcher $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
+        
+        $this->imageWidth = ProductAPI::getConfigValue('image_width', 500);
+        $this->imageHeight = ProductAPI::getConfigValue('image_height', 500);
     }
 
     /**
@@ -250,8 +253,8 @@ class ProductService
         );
         $imageEvent->setSourceFilepath($sourceFilePath);
         $imageEvent->setCacheSubdirectory($type);
-        $imageEvent->setWidth(200)
-            ->setHeight(200)
+        $imageEvent->setWidth(ProductAPI::getConfigValue('image_width', 500))
+            ->setHeight(ProductAPI::getConfigValue('image_height', 500))
             ->setResizeMode(Image::EXACT_RATIO_WITH_BORDERS);
         return $imageEvent;
     }

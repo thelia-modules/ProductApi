@@ -24,18 +24,20 @@ use Thelia\Form\BaseForm;
  */
 class Configuration extends BaseForm
 {
+    protected function trans($str, $params = [])
+    {
+        return Translator::getInstance()->trans($str, $params, ProductAPI::DOMAIN_NAME);
+    }
+
     protected function buildForm()
     {
         $form = $this->formBuilder;
-
-        $apiKey = ProductAPI::getConfigValue('productapi_key', ProductAPI::API_KEY);
-        $apiUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/api/product';
 
         $form->add(
             "api_key",
             "text",
             array(
-                'data'  => $apiKey,
+                'data'  => ProductAPI::getConfigValue('productapi_key', ProductAPI::API_KEY),
                 'label' => Translator::getInstance()->trans("API Key",[] ,ProductAPI::DOMAIN_NAME),
                 'label_attr' => array(
                     'for' => "api_key"
@@ -47,11 +49,39 @@ class Configuration extends BaseForm
             "api_url",
             "text",
             array(
-                'data'  => $apiUrl,
+                'data'  => ProductAPI::getApiUrl(),
                 'label' => Translator::getInstance()->trans("API URL",[] ,ProductAPI::DOMAIN_NAME),
                 'label_attr' => array(
                     'for' => "api_url"
                 ),
+            )
+        );
+
+        $form->add(
+            'image_width',
+            'text',
+            array(
+                'required' => true,
+                'label' => $this->trans('Images width'),
+                'data' => ProductAPI::getConfigValue('image_width', 500),
+                'label_attr' => array(
+                    'for' => 'image_width',
+                    'help' => $this->trans('Results images width')
+                )
+            )
+        );
+
+        $form->add(
+            'image_height',
+            'text',
+            array(
+                'required' => true,
+                'label' => $this->trans('Images height'),
+                'data' => ProductAPI::getConfigValue('image_height', 500),
+                'label_attr' => array(
+                    'for' => 'image_height',
+                    'help' => $this->trans('Results images height')
+                )
             )
         );
     }

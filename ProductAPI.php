@@ -21,6 +21,11 @@ class ProductAPI extends BaseModule
     const API_KEY = 'ExRtVQjUCCBApuN4s4fPEQ6i5yggYvm2';
     const CONFIG_NAME_SERVER_HOST = 'server_host';
 
+    public static function getApiUrl()
+    {
+        return 'https://' . $_SERVER['HTTP_HOST'] . '/api/product';
+    }
+
     public static function getServerHost()
     {
         return rtrim(self::getConfigValue(self::CONFIG_NAME_SERVER_HOST, null), '/');

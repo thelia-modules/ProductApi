@@ -8,6 +8,10 @@
         <default key="_controller">ProductAPI\Controller\Admin\ConfigurationController::viewAction</default>
     </route>
 
+    <route id="product_api.configure.action" path="/admin/module/ProductAPI" methods="post">
+        <default key="_controller">ProductAPI\Controller\Admin\ConfigurationController::configureAction</default>
+    </route>
+
 
     <route id="product_api.get" path="/api/product" methods="GET">
         <default key="_controller">ProductAPI\Controller\Api\ProductController::getMethodAction</default>
