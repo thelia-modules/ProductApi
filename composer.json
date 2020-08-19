@@ -1,6 +1,6 @@
 {
   "name": "thelia/product-api-module",
-  "description": "An API to get thelia product from reference."
+  "description": "An API to get thelia product from reference.",
   "license": "LGPL-3.0-or-later",
   "type": "thelia-module",
   "require": {
