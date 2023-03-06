@@ -1,24 +1,29 @@
 <?php
 
 
-namespace ProductAPI\Controller\Api;
+namespace ProductApi\Controller\Api;
 
-use ProductAPI\ProductAPI;
-use ProductAPI\Service\ApiService;
-use ProductAPI\Service\ProductService;
+use ProductApi\ProductApi;
+use ProductApi\Service\ApiService;
+use ProductApi\Service\ProductService;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\HttpFoundation\Request;
 use Thelia\Controller\Front\BaseFrontController;
 use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Translation\Translator;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class ProductController
- * @package ProductAPI\Controller\Api
+ * @package ProductApi\Controller\Api
  * @author Florian Bernard <fbernard@openstudio.fr>
+ * @Route("/api/product", name="product_api_")
  */
 class ProductController extends BaseFrontController
 {
+    /**
+     * @Route("", name="get_method", methods="GET")
+     */
     public function getMethodAction(Request $request)
     {
         if(empty($request->query->all())) {
@@ -38,7 +43,7 @@ class ProductController extends BaseFrontController
 
         try{
             if($hash && !$apiService->verifyHash($request)) {
-                return new JsonResponse(Translator::getInstance()->trans('You are not authorized to see this.', [], ProductAPI::DOMAIN_NAME), 403);
+                return new JsonResponse(Translator::getInstance()->trans('You are not authorized to see this.', [], ProductApi::DOMAIN_NAME), 403);
             }
 
             $jsonResponse = $productService->getProduct($request->query->all(), $country, $lang);

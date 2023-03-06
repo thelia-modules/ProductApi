@@ -1,11 +1,11 @@
 <?php
 
 
-namespace ProductAPI\Service;
+namespace ProductApi\Service;
 
 
 use Exception;
-use ProductAPI\ProductAPI;
+use ProductApi\ProductApi;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Thelia\Action\Image;
@@ -31,8 +31,8 @@ class ProductService
     {
         $this->eventDispatcher = $eventDispatcher;
         
-        $this->imageWidth = ProductAPI::getConfigValue('image_width', 500);
-        $this->imageHeight = ProductAPI::getConfigValue('image_height', 500);
+        $this->imageWidth = ProductApi::getConfigValue('image_width', 500);
+        $this->imageHeight = ProductApi::getConfigValue('image_height', 500);
     }
 
     /**
@@ -59,7 +59,7 @@ class ProductService
         $product = $productQuery->findOne();
 
         if(null === $product){
-            throw new Exception(Translator::getInstance()->trans('No product with this parameters.', [], ProductAPI::DOMAIN_NAME));
+            throw new Exception(Translator::getInstance()->trans('No product with this parameters.', [], ProductApi::DOMAIN_NAME));
         }
 
         $productI18ns = $product->getProductI18ns(); // Get product's translations
@@ -69,7 +69,7 @@ class ProductService
         $country = CountryQuery::create()->filterByIsoalpha3($countryCode)->findOne(); // Get country from 3 alpha iso code
 
         if(null === $country){
-            throw new Exception(Translator::getInstance()->trans('Country code %countryCode not found.', ['%countryCode' => $countryCode], ProductAPI::DOMAIN_NAME));
+            throw new Exception(Translator::getInstance()->trans('Country code %countryCode not found.', ['%countryCode' => $countryCode], ProductApi::DOMAIN_NAME));
         }
 
         $taxed = $this->checkCountryIsTaxed($productTaxRule, $country);
@@ -190,7 +190,7 @@ class ProductService
             if (null !== $image) {
                 try {
                     $imageEvent = self::createImageEvent($image->getFile(), $type);
-                    $this->eventDispatcher->dispatch(TheliaEvents::IMAGE_PROCESS, $imageEvent);
+                    $this->eventDispatcher->dispatch($imageEvent, TheliaEvents::IMAGE_PROCESS);
 
                     $i18nMethod = "get".ucfirst($type).'ImageI18ns';
                     $imageI18ns = $image->$i18nMethod();
@@ -253,8 +253,8 @@ class ProductService
         );
         $imageEvent->setSourceFilepath($sourceFilePath);
         $imageEvent->setCacheSubdirectory($type);
-        $imageEvent->setWidth(ProductAPI::getConfigValue('image_width', 500))
-            ->setHeight(ProductAPI::getConfigValue('image_height', 500))
+        $imageEvent->setWidth(ProductApi::getConfigValue('image_width', 500))
+            ->setHeight(ProductApi::getConfigValue('image_height', 500))
             ->setResizeMode(Image::EXACT_RATIO_WITH_BORDERS);
         return $imageEvent;
     }

@@ -10,11 +10,12 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace ProductAPI;
+namespace ProductApi;
 
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Thelia\Module\BaseModule;
 
-class ProductAPI extends BaseModule
+class ProductApi extends BaseModule
 {
     /** @var string */
     const DOMAIN_NAME = 'productapi';
@@ -29,5 +30,13 @@ class ProductAPI extends BaseModule
     public static function getServerHost()
     {
         return rtrim(self::getConfigValue(self::CONFIG_NAME_SERVER_HOST, null), '/');
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }

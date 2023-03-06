@@ -4,17 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
     <forms>
-        <form name="product_api.configuration.form" class="ProductAPI\Form\Configuration" />
+        <form name="product_api_configuration_form" class="ProductAPI\Form\Configuration" />
     </forms>
-
-    <services>
-        <service id="product_api.product.service" class="ProductAPI\Service\ProductService">
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="product_api.api.service" class="ProductAPI\Service\ApiService">
-            <argument type="service" id="event_dispatcher" />
-        </service>
-    </services>
 
 </config>
