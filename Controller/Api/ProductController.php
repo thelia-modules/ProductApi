@@ -17,13 +17,11 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class ProductController
  * @package ProductApi\Controller\Api
  * @author Florian Bernard <fbernard@openstudio.fr>
- * @Route("/api/product", name="product_api_")
  */
+#[Route('/api/product', name: 'product_api_')]
 class ProductController extends BaseFrontController
 {
-    /**
-     * @Route("", name="get_method", methods="GET")
-     */
+    #[Route('', name: 'get_method', methods: 'GET')]
     public function getMethodAction(Request $request)
     {
         if(empty($request->query->all())) {

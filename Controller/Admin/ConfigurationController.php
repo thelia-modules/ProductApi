@@ -12,15 +12,10 @@ use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/admin/module/ProductAPI", name="product_api_admin_")
- */
+#[Route('/admin/module/ProductApi', name: 'product_api_admin_')]
 class ConfigurationController extends BaseAdminController
 {
-    /**
-     * @Route("", name="view", methods="GET")
-     * @return mixed|\Thelia\Core\HttpFoundation\Response
-     */
+    #[Route('', name: 'view', methods: 'GET')]
     public function viewAction()
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ProductAPI'), AccessManager::VIEW)) {
@@ -30,10 +25,7 @@ class ConfigurationController extends BaseAdminController
         return $this->render('productapi/configuration');
     }
 
-    /**
-     * @Route("", name="configure", methods="POST")
-     * @return mixed|\Thelia\Core\HttpFoundation\Response
-     */
+    #[Route('', name: 'configure', methods: 'POST')]
     public function configureAction(Translator $translator)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ProductAPI'), AccessManager::VIEW)) {
@@ -68,10 +60,7 @@ class ConfigurationController extends BaseAdminController
         return new JsonResponse(ProductApi::API_KEY, 200);
     }
 
-    /**
-     * @Route("/update-api-key", name="update_api_key", methods="POST")
-     * @return JsonResponse The result
-     */
+    #[Route('/update-api-key', name: 'update_api_key', methods: 'POST')]
     public function updateApiKey(Request $request)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('productapi'), AccessManager::UPDATE)) {
