@@ -10,23 +10,24 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace ProductAPI\Form;
+namespace ProductApi\Form;
 
 
-use ProductAPI\ProductAPI;
+use ProductApi\ProductApi;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
 
 /**
  * Class Configuration
- * @package ProductAPI\Form
+ * @package ProductApi\Form
  * @author Florian Bernard <fbernard@openstudio.fr>
  */
 class Configuration extends BaseForm
 {
     protected function trans($str, $params = [])
     {
-        return Translator::getInstance()->trans($str, $params, ProductAPI::DOMAIN_NAME);
+        return Translator::getInstance()->trans($str, $params, ProductApi::DOMAIN_NAME);
     }
 
     protected function buildForm()
@@ -35,10 +36,10 @@ class Configuration extends BaseForm
 
         $form->add(
             "api_key",
-            "text",
+            TextType::class,
             array(
-                'data'  => ProductAPI::getConfigValue('productapi_key', ProductAPI::API_KEY),
-                'label' => Translator::getInstance()->trans("API Key",[] ,ProductAPI::DOMAIN_NAME),
+                'data'  => ProductApi::getConfigValue('productapi_key', ProductApi::API_KEY),
+                'label' => Translator::getInstance()->trans("API Key",[] ,ProductApi::DOMAIN_NAME),
                 'label_attr' => array(
                     'for' => "api_key"
                 ),
@@ -47,10 +48,10 @@ class Configuration extends BaseForm
 
         $form->add(
             "api_url",
-            "text",
+            TextType::class,
             array(
-                'data'  => ProductAPI::getApiUrl(),
-                'label' => Translator::getInstance()->trans("API URL",[] ,ProductAPI::DOMAIN_NAME),
+                'data'  => ProductApi::getApiUrl(),
+                'label' => Translator::getInstance()->trans("API URL",[] ,ProductApi::DOMAIN_NAME),
                 'label_attr' => array(
                     'for' => "api_url"
                 ),
@@ -59,11 +60,11 @@ class Configuration extends BaseForm
 
         $form->add(
             'image_width',
-            'text',
+            TextType::class,
             array(
                 'required' => true,
                 'label' => $this->trans('Images width'),
-                'data' => ProductAPI::getConfigValue('image_width', 500),
+                'data' => ProductApi::getConfigValue('image_width', 500),
                 'label_attr' => array(
                     'for' => 'image_width',
                     'help' => $this->trans('Results images width')
@@ -73,11 +74,11 @@ class Configuration extends BaseForm
 
         $form->add(
             'image_height',
-            'text',
+            TextType::class,
             array(
                 'required' => true,
                 'label' => $this->trans('Images height'),
-                'data' => ProductAPI::getConfigValue('image_height', 500),
+                'data' => ProductApi::getConfigValue('image_height', 500),
                 'label_attr' => array(
                     'for' => 'image_height',
                     'help' => $this->trans('Results images height')
@@ -86,7 +87,7 @@ class Configuration extends BaseForm
         );
     }
 
-    public function getName(){
-        return 'product_api';
+    public static function getName(){
+        return 'product_api_configuration_form';
     }
 }

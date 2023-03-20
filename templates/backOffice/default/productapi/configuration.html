@@ -15,7 +15,7 @@
 {block name="main-content"}
 {default_translation_domain domain='productapi.bo.default'}
 
-{if $form_error_message}
+{if $form_error_message|default:null}
 <div class="alert alert-danger">{$form_error_message}</div>
 {/if}
 <div class="edit-module">
@@ -32,7 +32,7 @@
                 <div class="col-md-12 title title-without-tabs">
                     {intl l='API Key / URL'}
                 </div>
-                {form name="product_api.configuration.form"}
+                {form name="product_api_configuration_form"}
                 <form method="POST" id="product_api-form" action="{url path="/admin/module/ProductAPI"}" class="clearfix">
 
                 {include file = "includes/inner-form-toolbar.html"
@@ -50,7 +50,7 @@
                     {form_hidden_fields}
 
                     {if $form_error}
-                    <div class="alert alert-danger">{$form_error_message}</div>
+                    <div class="alert alert-danger">{$form_error_message|default:null}</div>
                     {/if}
 
                     {form_field field='api_key'}

@@ -1,23 +1,21 @@
 <?php
 
 
-namespace ProductAPI\Controller\Admin;
+namespace ProductApi\Controller\Admin;
 
-
-use ColissimoLabel\Exception\Exception;
-use ElasticSearchProduct\ElasticSearchProduct;
-use ProductAPI\ProductAPI;
+use ProductApi\ProductApi;
 use Symfony\Component\HttpFoundation\Request;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Core\Translation\Translator;
+use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/admin/module/ProductApi', name: 'product_api_admin_')]
 class ConfigurationController extends BaseAdminController
 {
-    /**
-     * @return mixed|\Thelia\Core\HttpFoundation\Response
-     */
+    #[Route('', name: 'view', methods: 'GET')]
     public function viewAction()
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ProductAPI'), AccessManager::VIEW)) {
@@ -27,10 +25,8 @@ class ConfigurationController extends BaseAdminController
         return $this->render('productapi/configuration');
     }
 
-    /**
-     * @return mixed|\Thelia\Core\HttpFoundation\Response
-     */
-    public function configureAction()
+    #[Route('', name: 'configure', methods: 'POST')]
+    public function configureAction(Translator $translator)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ProductAPI'), AccessManager::VIEW)) {
             return $response;
@@ -41,12 +37,12 @@ class ConfigurationController extends BaseAdminController
         try {
             $data = $this->validateForm($form, 'POST')->getData();
 
-            ProductAPI::setConfigValue('image_width', $data['image_width']);
-            ProductAPI::setConfigValue('image_height', $data['image_height']);
+            ProductApi::setConfigValue('image_width', $data['image_width']);
+            ProductApi::setConfigValue('image_height', $data['image_height']);
 
         } catch (\Exception $e) {
             $this->setupFormErrorContext(
-                $this->getTranslator()->trans("ProductAPI configuration", [], ProductAPI::DOMAIN_NAME),
+                $translator->trans("ProductAPI configuration", [], ProductApi::DOMAIN_NAME),
                 $e->getMessage(),
                 $form,
                 $e
@@ -61,12 +57,10 @@ class ConfigurationController extends BaseAdminController
      */
     public function getApiKeyAction()
     {
-        return JsonResponse::create(ProductAPI::API_KEY, 200);
+        return new JsonResponse(ProductApi::API_KEY, 200);
     }
 
-    /**
-     * @return JsonResponse The result
-     */
+    #[Route('/update-api-key', name: 'update_api_key', methods: 'POST')]
     public function updateApiKey(Request $request)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('productapi'), AccessManager::UPDATE)) {
@@ -74,11 +68,11 @@ class ConfigurationController extends BaseAdminController
         }
 
         try {
-            ProductAPI::setConfigValue('productapi_key',$request->get('newKey'));
+            ProductApi::setConfigValue('productapi_key',$request->get('newKey'));
         } catch (\Exception $e) {
-            return JsonResponse::create(['error' => $e->getMessage()], 500);
+            return new JsonResponse(['error' => $e->getMessage()], 500);
         }
 
-        return JsonResponse::create([], 200);
+        return new JsonResponse([], 200);
     }
 }
