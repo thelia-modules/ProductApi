@@ -1,4 +1,4 @@
-# Product API
+# ProductApi
 
 An API to get product from thelia based website with only the product's reference. 
 
@@ -6,7 +6,7 @@ An API to get product from thelia based website with only the product's referenc
 
 ### Manually
 
-* Copy the module into ```<thelia_root>/local/modules/``` directory and be sure that the name of the module is ProductAPI.
+* Copy the module into ```<thelia_root>/local/modules/``` directory and be sure that the name of the module is ProductApi.
 * Activate it in your thelia administration panel
 
 ## Usage
