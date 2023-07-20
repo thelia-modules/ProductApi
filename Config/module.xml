@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
-    <fullnamespace>ProductApi\ProductApi</fullnamespace>
+    <fullnamespace>ProductAPI\ProductAPI</fullnamespace>
     <descriptive locale="en_US">
         <title>Get product information with the product ref</title>
     </descriptive>
     <descriptive locale="fr_FR">
         <title>Obtenir les informations d'un produit avec sa référence</title>
     </descriptive>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <author>
         <name>Florian Bernard</name>
         <email>fbernard@openstudio.fr</email>

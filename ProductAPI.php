@@ -10,12 +10,12 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace ProductApi;
+namespace ProductAPI;
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Thelia\Module\BaseModule;
 
-class ProductApi extends BaseModule
+class ProductAPI extends BaseModule
 {
     /** @var string */
     const DOMAIN_NAME = 'productapi';
@@ -27,7 +27,7 @@ class ProductApi extends BaseModule
         return 'https://' . $_SERVER['HTTP_HOST'] . '/api/product';
     }
 
-    public static function getServerHost()
+    public static function getServerHost(): string
     {
         return rtrim(self::getConfigValue(self::CONFIG_NAME_SERVER_HOST, null), '/');
     }
