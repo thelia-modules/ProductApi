@@ -7,6 +7,6 @@
     "thelia/installer": "~1.1"
   },
   "extra": {
-    "installer-name": "ProductAPI"
+    "installer-name": "ProductApi"
   }
 }
