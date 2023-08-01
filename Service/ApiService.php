@@ -1,17 +1,17 @@
 <?php
 
 
-namespace ProductApi\Service;
+namespace ProductAPI\Service;
 
 
-use ProductApi\ProductApi;
+use ProductAPI\ProductAPI;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiService
 {
-    public function verifyHash(Request $request)
+    public function verifyHash(Request $request): bool
     {
-        $apiKey = ProductApi::getConfigValue('productapi_key', ProductApi::API_KEY);
+        $apiKey = ProductAPI::getConfigValue('productapi_key', ProductAPI::API_KEY);
 
         $parameters = $request->query->all();
         unset($parameters['hash']);

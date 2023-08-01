@@ -1,9 +1,11 @@
 <?php
 
 
-namespace ProductApi\Controller\Admin;
+namespace ProductAPI\Controller\Admin;
 
-use ProductApi\ProductApi;
+use Exception;
+use ProductAPI\Form\Configuration;
+use ProductAPI\ProductAPI;
 use Symfony\Component\HttpFoundation\Request;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\JsonResponse;
@@ -12,7 +14,7 @@ use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/admin/module/ProductApi', name: 'product_api_admin_')]
+#[Route('/admin/module/ProductAPI', name: 'product_api_admin_')]
 class ConfigurationController extends BaseAdminController
 {
     #[Route('', name: 'view', methods: 'GET')]
@@ -32,17 +34,17 @@ class ConfigurationController extends BaseAdminController
             return $response;
         }
 
-        $form = $this->createForm('product_api.configuration.form');
+        $form = $this->createForm(Configuration::getName());
 
         try {
             $data = $this->validateForm($form, 'POST')->getData();
 
-            ProductApi::setConfigValue('image_width', $data['image_width']);
-            ProductApi::setConfigValue('image_height', $data['image_height']);
+            ProductAPI::setConfigValue('image_width', $data['image_width']);
+            ProductAPI::setConfigValue('image_height', $data['image_height']);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->setupFormErrorContext(
-                $translator->trans("ProductAPI configuration", [], ProductApi::DOMAIN_NAME),
+                $translator->trans("ProductAPI configuration", [], ProductAPI::DOMAIN_NAME),
                 $e->getMessage(),
                 $form,
                 $e
@@ -55,9 +57,9 @@ class ConfigurationController extends BaseAdminController
     /**
      * @return JsonResponse The api key
      */
-    public function getApiKeyAction()
+    public function getApiKeyAction(): JsonResponse
     {
-        return new JsonResponse(ProductApi::API_KEY, 200);
+        return new JsonResponse(ProductAPI::API_KEY, 200);
     }
 
     #[Route('/update-api-key', name: 'update_api_key', methods: 'POST')]
@@ -68,8 +70,8 @@ class ConfigurationController extends BaseAdminController
         }
 
         try {
-            ProductApi::setConfigValue('productapi_key',$request->get('newKey'));
-        } catch (\Exception $e) {
+            ProductAPI::setConfigValue('productapi_key',$request->get('newKey'));
+        } catch (Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
 

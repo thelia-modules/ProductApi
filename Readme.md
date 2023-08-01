@@ -34,9 +34,9 @@ in JSON
 Arguments in **bold** are required.
 Arguments in *italic* are optionals.
 
-|Argument |Description |
-|---      |--- |
-|**hash** | The hash of the parameter and the API key |
-|*country*| The country for the tax in ISO3           |
-|*ref*    | The ref of the product (if you want to search a product with his ref) |
-|*id*     | The product's ID (if you want to search a product with his ID) |
+| Argument  | Description                                                           |
+|-----------|-----------------------------------------------------------------------|
+| **hash**  | The hash of the parameter and the API key                             |
+| *country* | The country for the tax in ISO3                                       |
+| *ref*     | The ref of the product (if you want to search a product with his ref) |
+| *id*      | The product's ID (if you want to search a product with his ID)        |

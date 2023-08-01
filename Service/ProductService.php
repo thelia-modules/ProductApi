@@ -1,11 +1,11 @@
 <?php
 
 
-namespace ProductApi\Service;
+namespace ProductAPI\Service;
 
 
 use Exception;
-use ProductApi\ProductApi;
+use ProductAPI\ProductAPI;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Thelia\Action\Image;
@@ -25,26 +25,26 @@ use Thelia\TaxEngine\Calculator;
 
 class ProductService
 {
-    protected $eventDispatcher;
+    protected string $imageHeight;
+    protected string $imageWidth;
 
-    public function __construct(EventDispatcher $eventDispatcher)
+    public function __construct(protected EventDispatcher $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        
-        $this->imageWidth = ProductApi::getConfigValue('image_width', 500);
-        $this->imageHeight = ProductApi::getConfigValue('image_height', 500);
+        $this->imageWidth = ProductAPI::getConfigValue('image_width', 500);
+        $this->imageHeight = ProductAPI::getConfigValue('image_height', 500);
     }
 
     /**
      * @param array $filters
+     * @param string $countryCode
      * @param string $lang
      *
-     * @return mixed
+     * @return array
      *
      * @throws PropelException
      * @throws Exception
      */
-    public function getProduct(array $filters, $countryCode = "FRA", $lang = "fr_FR")
+    public function getProduct(array $filters, string $countryCode = "FRA", string $lang = "fr_FR"): array
     {
         $productQuery = ProductQuery::create();
         foreach ($filters as $parameter => $value){
@@ -59,7 +59,7 @@ class ProductService
         $product = $productQuery->findOne();
 
         if(null === $product){
-            throw new Exception(Translator::getInstance()->trans('No product with this parameters.', [], ProductApi::DOMAIN_NAME));
+            throw new Exception(Translator::getInstance()->trans('No product with this parameters.', [], ProductAPI::DOMAIN_NAME));
         }
 
         $productI18ns = $product->getProductI18ns(); // Get product's translations
@@ -69,7 +69,7 @@ class ProductService
         $country = CountryQuery::create()->filterByIsoalpha3($countryCode)->findOne(); // Get country from 3 alpha iso code
 
         if(null === $country){
-            throw new Exception(Translator::getInstance()->trans('Country code %countryCode not found.', ['%countryCode' => $countryCode], ProductApi::DOMAIN_NAME));
+            throw new Exception(Translator::getInstance()->trans('Country code %countryCode not found.', ['%countryCode' => $countryCode], ProductAPI::DOMAIN_NAME));
         }
 
         $taxed = $this->checkCountryIsTaxed($productTaxRule, $country);
@@ -112,7 +112,10 @@ class ProductService
         return $data;
     }
 
-    public function checkCountryIsTaxed($productTaxRule, $country)
+    /**
+     * @throws PropelException
+     */
+    public function checkCountryIsTaxed($productTaxRule, $country): bool
     {
         /** @var ChildTaxRule $productTaxRule */
         $productTaxeRuleCountries = $productTaxRule->getTaxRuleCountries(); // Get product taxed countries to check if product is taxed
@@ -127,7 +130,10 @@ class ProductService
         return in_array($country->getId(), $taxedCountryIds);
     }
 
-    protected function getPricesData(ProductSaleElements $productSaleElement, Product $product, TaxRule $taxRule, $taxed, Country $country)
+    /**
+     * @throws PropelException
+     */
+    protected function getPricesData(ProductSaleElements $productSaleElement, Product $product, TaxRule $taxRule, $taxed, Country $country): array
     {
         $productPrices = $productSaleElement->getProductPrices();
         $prices = [];
@@ -152,7 +158,7 @@ class ProductService
         return $prices;
     }
 
-    protected function getLangData($i18ns, $withUrl = false, $model = null,  $viewName = '')
+    protected function getLangData($i18ns, $withUrl = false, $model = null,  $viewName = ''): array
     {
         $data = [];
         foreach ($i18ns as $i18n) {
@@ -169,7 +175,7 @@ class ProductService
             if ($withUrl) {
                 $url = $model->getRewrittenUrl($i18n->getLocale());
 
-                $data['urls'][$i18n->getLocale()] = $url ? $url :
+                $data['urls'][$i18n->getLocale()] = $url ?:
                     sprintf(
                         "/?view=".$viewName."&lang=%s&".$viewName."_id=%d",
                         $i18n->getLocale(),
@@ -181,7 +187,7 @@ class ProductService
         return $data;
     }
 
-    protected function getImageData($images, $type)
+    protected function getImageData($images, $type): array
     {
         $data = [];
 
@@ -194,7 +200,7 @@ class ProductService
 
                     $i18nMethod = "get".ucfirst($type).'ImageI18ns';
                     $imageI18ns = $image->$i18nMethod();
-                    $langData = $this->getLangData($imageI18ns, false);
+                    $langData = $this->getLangData($imageI18ns);
 
                     $data[$index] = [
                         'visible' => $image->getVisible(),
@@ -205,8 +211,7 @@ class ProductService
                         'i18ns' => $langData
                     ];
 
-                } catch (\Exception $e) {
-                    $error = $e->getMessage();
+                } catch (Exception) {
                 }
                 $index++;
             }
@@ -215,7 +220,10 @@ class ProductService
         return $data;
     }
 
-    protected function getTaxCalculator($taxRule, $product, $taxedCountry)
+    /**
+     * @throws PropelException
+     */
+    protected function getTaxCalculator($taxRule, $product, $taxedCountry): Calculator
     {
         $taxCalculator = new Calculator();
 
@@ -235,7 +243,7 @@ class ProductService
         return $taxCalculator;
     }
 
-    protected function createImageEvent($imageFile, $type)
+    protected function createImageEvent($imageFile, $type): ImageEvent
     {
         $imageEvent = new ImageEvent();
         $baseSourceFilePath = ConfigQuery::read('images_library_path');
@@ -253,8 +261,8 @@ class ProductService
         );
         $imageEvent->setSourceFilepath($sourceFilePath);
         $imageEvent->setCacheSubdirectory($type);
-        $imageEvent->setWidth(ProductApi::getConfigValue('image_width', 500))
-            ->setHeight(ProductApi::getConfigValue('image_height', 500))
+        $imageEvent->setWidth(ProductAPI::getConfigValue('image_width', 500))
+            ->setHeight(ProductAPI::getConfigValue('image_height', 500))
             ->setResizeMode(Image::EXACT_RATIO_WITH_BORDERS);
         return $imageEvent;
     }
