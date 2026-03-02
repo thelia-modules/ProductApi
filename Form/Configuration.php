@@ -29,7 +29,7 @@ class Configuration extends BaseForm
         return Translator::getInstance()->trans($str, $params, ProductAPI::DOMAIN_NAME);
     }
 
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $form = $this->formBuilder;
 

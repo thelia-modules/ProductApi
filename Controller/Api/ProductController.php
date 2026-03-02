@@ -21,6 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/product', name: 'product_api_')]
 class ProductController extends BaseFrontController
 {
+    public function __construct(protected APIService $apiService, protected ProductService $productService)
+    {}
+
     #[Route('', name: 'get_method', methods: 'GET')]
     public function getMethodAction(Request $request): JsonResponse
     {
@@ -33,18 +36,12 @@ class ProductController extends BaseFrontController
         $country = $request->get('country', 'FRA');
         $lang = $request->get('lang', 'fr_FR');
 
-        /** @var ApiService $apiService */
-        $apiService = $this->getContainer()->get('product_api.api.service');
-
-        /** @var ProductService $productService */
-        $productService = $this->getContainer()->get('product_api.product.service');
-
         try{
-            if($hash && !$apiService->verifyHash($request)) {
+            if($hash && !$this->apiService->verifyHash($request)) {
                 return new JsonResponse(Translator::getInstance()->trans('You are not authorized to see this.', [], ProductAPI::DOMAIN_NAME), 403);
             }
 
-            $jsonResponse = $productService->getProduct($request->query->all(), $country, $lang);
+            $jsonResponse = $this->productService->getProduct($request->query->all(), $country, $lang);
 
             return new JsonResponse($jsonResponse, 200);
 

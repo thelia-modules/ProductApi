@@ -7,13 +7,13 @@ namespace ProductAPI\Service;
 use Exception;
 use ProductAPI\ProductAPI;
 use Propel\Runtime\Exception\PropelException;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Thelia\Action\Image;
 use Thelia\Core\Event\Image\ImageEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Translation\Translator;
-use Thelia\Model\Base\CountryQuery;
 use Thelia\Model\Country;
+use Thelia\Model\CountryQuery;
 use Thelia\Model\Product;
 use Thelia\Model\ProductSaleElements;
 use Thelia\Model\ConfigQuery;
@@ -28,7 +28,7 @@ class ProductService
     protected string $imageHeight;
     protected string $imageWidth;
 
-    public function __construct(protected EventDispatcher $eventDispatcher)
+    public function __construct(protected EventDispatcherInterface $eventDispatcher)
     {
         $this->imageWidth = ProductAPI::getConfigValue('image_width', 500);
         $this->imageHeight = ProductAPI::getConfigValue('image_height', 500);
