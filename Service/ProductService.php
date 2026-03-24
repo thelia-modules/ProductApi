@@ -75,7 +75,7 @@ class ProductService
         $taxed = $this->checkCountryIsTaxed($productTaxRule, $country);
 
         $data['Product'] = $product->toArray(); // Jsonify the product - 'Product' key is used to deserialize in the WordPress plugin
-        $data['Product']['Images'] = $this->getImageData($product->getProductImages(), 'product');
+        $data['Product']['Images'] = $this->getImageData($product->getProductImages(), 'product', $lang);
         $data['Product']['URL'] = $product->getUrl($lang);
 
         foreach ($productSaleElements as $productSaleElement){
@@ -187,7 +187,7 @@ class ProductService
         return $data;
     }
 
-    protected function getImageData($images, $type): array
+    protected function getImageData($images, $type, string $locale): array
     {
         $data = [];
 
@@ -195,7 +195,7 @@ class ProductService
         foreach ($images as $image) {
             if (null !== $image) {
                 try {
-                    $imageEvent = self::createImageEvent($image->getFile(), $type);
+                    $imageEvent = self::createImageEvent($image->setLocale($locale)->getFile(), $type);
                     $this->eventDispatcher->dispatch($imageEvent, TheliaEvents::IMAGE_PROCESS);
 
                     $i18nMethod = "get".ucfirst($type).'ImageI18ns';
