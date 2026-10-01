@@ -1,0 +1,23 @@
+{# Configuration fragment, rendered inside the module-configure page (hook module.configuration) #}
+<div class="card mb-4">
+    <div class="card-header">
+        <h4 class="card-title mb-0">{{ 'API Key / URL'|trans({}, 'productapi') }}</h4>
+    </div>
+
+    {% form_theme form with bo_form_themes only %}
+    {{ form_start(form, {action: path('product_api_admin_configure'), method: 'post'}) }}
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label" for="product-api-url">{{ 'API URL'|trans({}, 'productapi') }}</label>
+            <input type="text" id="product-api-url" class="form-control" value="{{ url('product_api_get_method') }}" readonly>
+        </div>
+
+        {{ form_row(form.api_key) }}
+        {{ form_row(form.image_width) }}
+        {{ form_row(form.image_height) }}
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary">{{ 'Save'|trans }}</button>
+    </div>
+    {{ form_end(form) }}
+</div>
