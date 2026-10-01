@@ -1,80 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace ProductAPI\Controller\Admin;
 
-use Exception;
-use ProductAPI\Form\Configuration;
+use ProductAPI\Form\ConfigurationForm;
 use ProductAPI\ProductAPI;
-use Symfony\Component\HttpFoundation\Request;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
-use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
-use Thelia\Core\Translation\Translator;
-use Symfony\Component\Routing\Annotation\Route;
+use Thelia\Form\Exception\FormValidationException;
 
-#[Route('/admin/module/ProductAPI', name: 'product_api_admin_')]
 class ConfigurationController extends BaseAdminController
 {
-    #[Route('', name: 'view', methods: 'GET')]
-    public function viewAction()
+    #[Route('/admin/module/ProductAPI/configuration', name: 'product_api_admin_configure', methods: ['POST'])]
+    public function configureAction(LoggerInterface $logger): Response
     {
-        if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ProductAPI'), AccessManager::VIEW)) {
+        if (null !== $response = $this->checkAuth(AdminResources::MODULE, ProductAPI::DOMAIN_NAME, AccessManager::UPDATE)) {
             return $response;
         }
 
-        return $this->render('productapi/configuration');
-    }
-
-    #[Route('', name: 'configure', methods: 'POST')]
-    public function configureAction(Translator $translator)
-    {
-        if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ProductAPI'), AccessManager::VIEW)) {
-            return $response;
-        }
-
-        $form = $this->createForm(Configuration::getName());
+        $form = $this->createForm(ConfigurationForm::getName());
 
         try {
-            $data = $this->validateForm($form, 'POST')->getData();
+            $data = $this->validateForm($form)->getData();
 
-            ProductAPI::setConfigValue('image_width', $data['image_width']);
-            ProductAPI::setConfigValue('image_height', $data['image_height']);
-
-        } catch (Exception $e) {
-            $this->setupFormErrorContext(
-                $translator->trans("ProductAPI configuration", [], ProductAPI::DOMAIN_NAME),
-                $e->getMessage(),
-                $form,
-                $e
-            );
+            ProductAPI::setConfigValue(ProductAPI::CONFIG_API_KEY, trim((string) $data['api_key']));
+            ProductAPI::setConfigValue(ProductAPI::CONFIG_IMAGE_WIDTH, (string) $data['image_width']);
+            ProductAPI::setConfigValue(ProductAPI::CONFIG_IMAGE_HEIGHT, (string) $data['image_height']);
+        } catch (FormValidationException $exception) {
+            $this->addFlash('danger', $this->createStandardFormValidationErrorMessage($exception));
+        } catch (\Throwable $exception) {
+            $logger->error('ProductAPI: {message}', ['message' => $exception->getMessage(), 'exception' => $exception]);
+            $this->addFlash('danger', $this->translator->trans('An unexpected error occurred, the configuration was not saved', [], ProductAPI::DOMAIN_NAME));
         }
 
-        return $this->generateSuccessRedirect($form);
-    }
-
-    /**
-     * @return JsonResponse The api key
-     */
-    public function getApiKeyAction(): JsonResponse
-    {
-        return new JsonResponse(ProductAPI::API_KEY, 200);
-    }
-
-    #[Route('/update-api-key', name: 'update_api_key', methods: 'POST')]
-    public function updateApiKey(Request $request)
-    {
-        if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('productapi'), AccessManager::UPDATE)) {
-            return $response;
-        }
-
-        try {
-            ProductAPI::setConfigValue('productapi_key',$request->get('newKey'));
-        } catch (Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
-        }
-
-        return new JsonResponse([], 200);
+        return $this->generateRedirectFromRoute('admin.module.configure', [], ['module_code' => ProductAPI::getModuleCode()]);
     }
 }
